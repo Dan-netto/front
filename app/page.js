@@ -13,7 +13,7 @@ export default function Home() {
   const calcular = async () => {
     setLoading(true);
     try {
-      const response = await fetch('https://appcalculoemissao-2c6b30e79caa.herokuapp.com//emissao/estacionaria', {
+      const response = await fetch('https://appcalculoemissao-2c6b30e79caa.herokuapp.com/emissao/estacionaria', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
