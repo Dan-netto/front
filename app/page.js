@@ -93,3 +93,16 @@ export default function Home() {
     </div>
   );
 }
+
+<select
+  name="combustivel"
+  value={form.combustivel}
+  onChange={handleChange}
+  className="w-full p-2 border rounded"
+>
+  <option value="">Selecione um combustível</option>
+  <option value="Gasolina Automotiva Comercial">Gasolina Automotiva Comercial</option>
+  <option value="Oleo Diesel (comercial)">Oleo Diesel (comercial)</option>
+  <option value="Etanol Anidro">Etanol Anidro</option>
+  <option value="Biodiesel (B100)">Biodiesel (B100)</option>
+</select>
