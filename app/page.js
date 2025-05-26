@@ -21,11 +21,16 @@ export default function Home() {
           consumo: parseFloat(form.consumo),
         }),
       });
+
+      if (!response.ok) {
+        throw new Error("Erro na resposta da API");
+      }
+
       const data = await response.json();
       setResultado(data);
     } catch (error) {
       console.error('Erro ao calcular emissão:', error);
-      setResultado(null);
+      setResultado({ error: 'Erro ao calcular emissão. Verifique os dados.' });
     } finally {
       setLoading(false);
     }
@@ -35,9 +40,11 @@ export default function Home() {
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-2xl mx-auto bg-white p-6 rounded shadow">
         <h1 className="text-2xl font-bold mb-4">Calculadora de Pegada de Carbono</h1>
+
         <div className="mb-4">
-          <label className="block font-medium">Combustível:</label>
+          <label htmlFor="combustivel" className="block font-medium">Combustivel:</label>
           <input
+            id="combustivel"
             type="text"
             name="combustivel"
             value={form.combustivel}
@@ -46,9 +53,11 @@ export default function Home() {
             placeholder="Ex: Gasolina Automotiva Comercial"
           />
         </div>
+
         <div className="mb-4">
-          <label className="block font-medium">Consumo (litros):</label>
+          <label htmlFor="consumo" className="block font-medium">Consumo (litros):</label>
           <input
+            id="consumo"
             type="number"
             name="consumo"
             value={form.consumo}
@@ -57,6 +66,7 @@ export default function Home() {
             placeholder="Ex: 100"
           />
         </div>
+
         <button
           onClick={calcular}
           className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
@@ -64,7 +74,11 @@ export default function Home() {
           {loading ? 'Calculando...' : 'Calcular'}
         </button>
 
-        {resultado && (
+        {resultado?.error && (
+          <p className="text-red-600 mt-4">{resultado.error}</p>
+        )}
+
+        {resultado && !resultado.error && (
           <div className="mt-6">
             <h2 className="text-xl font-semibold mb-2">Resultado:</h2>
             <ul className="space-y-1">
