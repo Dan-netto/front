@@ -37,6 +37,8 @@ export default function Home() {
   };
 
   return (
+
+    
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-2xl mx-auto bg-white p-6 rounded shadow">
         <h1 className="text-2xl font-bold mb-4">Calculadora de Pegada de Carbono</h1>
@@ -52,6 +54,22 @@ export default function Home() {
             className="w-full p-2 border rounded"
             placeholder="Ex: Gasolina Automotiva Comercial"
           />
+        </div>
+        <div className="mb-4">
+          <label htmlFor="combustivel" className="block font-medium">Combustível:</label>
+          <select
+            id="combustivel"
+            name="combustivel"
+            value={form.combustivel}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">Selecione um combustível</option>
+            <option value="Gasolina Automotiva Comercial">Gasolina Automotiva Comercial</option>
+            <option value="Óleo Diesel (comercial)">Óleo Diesel (comercial)</option>
+            <option value="Etanol Anidro">Etanol Anidro</option>
+            <option value="Biodiesel (B100)">Biodiesel (B100)</option>
+          </select>
         </div>
 
         <div className="mb-4">
@@ -91,18 +109,8 @@ export default function Home() {
         )}
       </div>
     </div>
+    
+
+    
   );
 }
-
-<select
-  name="combustivel"
-  value={form.combustivel}
-  onChange={handleChange}
-  className="w-full p-2 border rounded"
->
-  <option value="">Selecione um combustível</option>
-  <option value="Gasolina Automotiva Comercial">Gasolina Automotiva Comercial</option>
-  <option value="Oleo Diesel (comercial)">Oleo Diesel (comercial)</option>
-  <option value="Etanol Anidro">Etanol Anidro</option>
-  <option value="Biodiesel (B100)">Biodiesel (B100)</option>
-</select>
