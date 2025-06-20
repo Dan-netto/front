@@ -32,26 +32,26 @@ export default function Carteira() {
 
         {!loading && dados.length > 0 && (
           <div className="overflow-x-auto">
-            <table className="min-w-full table-auto border border-gray-300">
+            <table className="min-w-full table-auto border border-gray-300 mt-4">
               <thead className="bg-gray-200">
                 <tr>
-                  <th className="border px-4 py-2 text-left">Ticker</th>
-                  <th className="border px-4 py-2 text-left">Preço Médio</th>
-                  <th className="border px-4 py-2 text-left">Quantidade</th>
-                  <th className="border px-4 py-2 text-left">Total Investido</th>
-                  <th className="border px-4 py-2 text-left">Dividendos</th>
-                  <th className="border px-4 py-2 text-left">Juros Sobre Capital Próprio</th>
+                  <th className="px-2 py-2 text-left min-w-[80px]">Ticker</th>
+                  <th className="px-2 py-2 text-left min-w-[100px]">Preço Médio</th>
+                  <th className="px-2 py-2 text-left min-w-[100px]">Quantidade</th>
+                  <th className="px-2 py-2 text-left min-w-[120px]">Total Investido</th>
+                  <th className="px-2 py-2 text-left min-w-[100px]">Dividendos</th>
+                  <th className="px-2 py-2 text-left min-w-[160px]">Juros s/ Capital</th>
                 </tr>
               </thead>
               <tbody>
                 {dados.map((item, idx) => (
-                  <tr key={idx}>
-                    <td className="border px-4 py-2">{item.ticker}</td>
-                    <td className="border px-4 py-2">R$ {item.preco_medio.toFixed(2)}</td>
-                    <td className="border px-4 py-2">{item.quantidade}</td>
-                    <td className="border px-4 py-2">R$ {item.total_investido.toFixed(2)}</td>
-                    <td className="border px-4 py-2">R$ {item.dividendos.toFixed(2)}</td>
-                    <td className="border px-4 py-2">R$ {item.juros_sobre_capital_proprio.toFixed(2)}</td>
+                  <tr key={idx} className="border-t border-gray-200">
+                    <td className="px-2 py-1">{item.Ticker}</td>
+                    <td className="px-2 py-1">R$ {item.preco_medio.toFixed(2)}</td>
+                    <td className="px-2 py-1">{item.quantidade}</td>
+                    <td className="px-2 py-1">R$ {item.total_investido.toFixed(2)}</td>
+                    <td className="px-2 py-1">R$ {item.dividendos.toFixed(2)}</td>
+                    <td className="px-2 py-1">R$ {item.juros_sobre_capital_proprio.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
