@@ -1,93 +1,64 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Carteira() {
-  const [ticker, setTicker] = useState("");
-  const [dados, setDados] = useState(null);
+  const [dados, setDados] = useState([]);
   const [erro, setErro] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const consultar = async () => {
-    setLoading(true);
-    setErro(null);
-    setDados(null);
-    try {
-      const res = await fetch(`https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira/${ticker}`);
-      if (!res.ok) throw new Error("Erro na consulta");
-      const json = await res.json();
-      setDados(json);
-    } catch (err) {
-      setErro("Ticker não encontrado ou erro na API");
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const fetchDados = async () => {
+      try {
+        const res = await fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira");
+        if (!res.ok) throw new Error("Erro ao buscar dados da API");
+        const json = await res.json();
+        setDados(json);
+      } catch (err) {
+        setErro("Erro ao carregar dados da API");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDados();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-xl mx-auto bg-white p-6 rounded shadow">
-        <h1 className="text-2xl font-bold mb-4">📊 Consultar Carteira</h1>
+      <div className="max-w-6xl mx-auto bg-white p-6 rounded shadow">
+        <h1 className="text-2xl font-bold mb-4">📊 Carteira Completa</h1>
 
-        <div className="mb-4">
-          <label className="block font-medium">Ticker:</label>
-          <input
-            type="text"
-            value={ticker}
-            onChange={(e) => setTicker(e.target.value.toUpperCase())}
-            placeholder="Ex: ITSA4"
-            className="w-full p-2 border rounded"
-          />
-        </div>
+        {loading && <p>Carregando...</p>}
+        {erro && <p className="text-red-600">{erro}</p>}
 
-        <button
-          onClick={consultar}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          {loading ? "Consultando..." : "Consultar"}
-        </button>
-
-        {erro && <p className="text-red-600 mt-4">{erro}</p>}
-
-        {dados && (
-  <div className="mt-6 overflow-x-auto">
-    <table className="min-w-full table-auto border border-gray-300">
-      <thead className="bg-gray-200">
-        <tr>
-          <th className="border px-4 py-2 text-left">Campo</th>
-          <th className="border px-4 py-2 text-left">Valor</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td className="border px-4 py-2 font-medium">Ticker</td>
-          <td className="border px-4 py-2">{dados.ticker}</td>
-        </tr>
-        <tr>
-          <td className="border px-4 py-2 font-medium">Preço Médio</td>
-          <td className="border px-4 py-2">R$ {dados.preco_medio.toFixed(2)}</td>
-        </tr>
-        <tr>
-          <td className="border px-4 py-2 font-medium">Quantidade</td>
-          <td className="border px-4 py-2">{dados.quantidade}</td>
-        </tr>
-        <tr>
-          <td className="border px-4 py-2 font-medium">Total Investido</td>
-          <td className="border px-4 py-2">R$ {dados.total_investido.toFixed(2)}</td>
-        </tr>
-        <tr>
-          <td className="border px-4 py-2 font-medium">Dividendos</td>
-          <td className="border px-4 py-2">R$ {dados.dividendos.toFixed(2)}</td>
-        </tr>
-        <tr>
-          <td className="border px-4 py-2 font-medium">Juros Sobre Capital Próprio</td>
-          <td className="border px-4 py-2">R$ {dados.juros_sobre_capital_proprio.toFixed(2)}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-    )}
+        {!loading && dados.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="min-w-full table-auto border border-gray-300">
+              <thead className="bg-gray-200">
+                <tr>
+                  <th className="border px-4 py-2 text-left">Ticker</th>
+                  <th className="border px-4 py-2 text-left">Preço Médio</th>
+                  <th className="border px-4 py-2 text-left">Quantidade</th>
+                  <th className="border px-4 py-2 text-left">Total Investido</th>
+                  <th className="border px-4 py-2 text-left">Dividendos</th>
+                  <th className="border px-4 py-2 text-left">Juros Sobre Capital Próprio</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dados.map((item, idx) => (
+                  <tr key={idx}>
+                    <td className="border px-4 py-2">{item.ticker}</td>
+                    <td className="border px-4 py-2">R$ {item.preco_medio.toFixed(2)}</td>
+                    <td className="border px-4 py-2">{item.quantidade}</td>
+                    <td className="border px-4 py-2">R$ {item.total_investido.toFixed(2)}</td>
+                    <td className="border px-4 py-2">R$ {item.dividendos.toFixed(2)}</td>
+                    <td className="border px-4 py-2">R$ {item.juros_sobre_capital_proprio.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
