@@ -49,15 +49,43 @@ export default function Carteira() {
         {erro && <p className="text-red-600 mt-4">{erro}</p>}
 
         {dados && (
-          <div className="mt-6 space-y-2">
-            <p><strong>Ticker:</strong> {dados.ticker}</p>
-            <p><strong>Preço Médio:</strong> R$ {dados.preco_medio.toFixed(2)}</p>
-            <p><strong>Quantidade:</strong> {dados.quantidade}</p>
-            <p><strong>Total Investido:</strong> R$ {dados.total_investido.toFixed(2)}</p>
-            <p><strong>Dividendos:</strong> R$ {dados.dividendos.toFixed(2)}</p>
-            <p><strong>Juros Sobre Capital Próprio:</strong> R$ {dados.juros_sobre_capital_proprio.toFixed(2)}</p>
-          </div>
-        )}
+  <div className="mt-6 overflow-x-auto">
+    <table className="min-w-full table-auto border border-gray-300">
+      <thead className="bg-gray-200">
+        <tr>
+          <th className="border px-4 py-2 text-left">Campo</th>
+          <th className="border px-4 py-2 text-left">Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td className="border px-4 py-2 font-medium">Ticker</td>
+          <td className="border px-4 py-2">{dados.ticker}</td>
+        </tr>
+        <tr>
+          <td className="border px-4 py-2 font-medium">Preço Médio</td>
+          <td className="border px-4 py-2">R$ {dados.preco_medio.toFixed(2)}</td>
+        </tr>
+        <tr>
+          <td className="border px-4 py-2 font-medium">Quantidade</td>
+          <td className="border px-4 py-2">{dados.quantidade}</td>
+        </tr>
+        <tr>
+          <td className="border px-4 py-2 font-medium">Total Investido</td>
+          <td className="border px-4 py-2">R$ {dados.total_investido.toFixed(2)}</td>
+        </tr>
+        <tr>
+          <td className="border px-4 py-2 font-medium">Dividendos</td>
+          <td className="border px-4 py-2">R$ {dados.dividendos.toFixed(2)}</td>
+        </tr>
+        <tr>
+          <td className="border px-4 py-2 font-medium">Juros Sobre Capital Próprio</td>
+          <td className="border px-4 py-2">R$ {dados.juros_sobre_capital_proprio.toFixed(2)}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+    )}
       </div>
     </div>
   );
