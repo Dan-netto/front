@@ -22,36 +22,43 @@ import {
 import { TrendingUp, DollarSign, PieChartIcon, BarChart3, ArrowUpDown } from "lucide-react"
 
 export default function InvestmentDashboard() {
-  const [investmentData, setInvestmentData] = useState<any[]>([])
+  const [data, setInvestmentData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/investimentos") // depois troca pelo backend deployado
-      .then((res) => res.json())
-      .then((data) => {
-        setInvestmentData(data)
+    fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira") // depois troca pelo backend deployado
+      .then((res) => {
+        if (!res.ok) throw new Error("Erro ao buscar dados")
+        return res.json()
+      })
+      .then((json) => {
+        setData(json)
         setLoading(false)
       })
       .catch((err) => {
-        console.error("Erro ao buscar investimentos:", err)
+        console.error(err)
+        setError("Falha ao carregar dados do backend")
         setLoading(false)
       })
   }, [])
 
-  // se ainda carregando
   if (loading) {
-    return <div className="p-6 text-center">Carregando dados...</div>
+    return <div className="p-6">Carregando...</div>
+  }
+
+  if (error) {
+    return <div className="p-6 text-red-500">{error}</div>
   }
 
   // Cálculos dos totais
   const totals = useMemo(() => {
-    const totalInvestido = investmentData.reduce((sum, item) => sum + item.total_investido, 0)
-    const totalDividendos = investmentData.reduce((sum, item) => sum + item.dividendos, 0)
-    const totalJCP = investmentData.reduce((sum, item) => sum + item.juros_sobre_capital_proprio, 0)
+    const totalInvestido = data.reduce((sum, item) => sum + item.total_investido, 0)
+    const totalDividendos = data.reduce((sum, item) => sum + item.dividendos, 0)
+    const totalJCP = data.reduce((sum, item) => sum + item.juros_sobre_capital_proprio, 0)
 
     // TIR média ponderada
     const tirMediaPonderada =
-      investmentData.reduce((sum, item) => sum + item.tir * item.total_investido, 0) / totalInvestido
+      data.reduce((sum, item) => sum + item.TIR * item.total_investido, 0) / totalInvestido
 
     return {
       totalInvestido,
@@ -64,7 +71,7 @@ export default function InvestmentDashboard() {
 
   // Dados filtrados e ordenados
   const filteredAndSortedData = useMemo(() => {
-    const filtered = investmentData.filter((item) => item.ticker.toLowerCase().includes(searchTerm.toLowerCase()))
+    const filtered = data.filter((item) => item.ticker.toLowerCase().includes(searchTerm.toLowerCase()))
 
     if (sortField) {
       filtered.sort((a, b) => {
@@ -83,14 +90,14 @@ export default function InvestmentDashboard() {
   }, [searchTerm, sortField, sortDirection])
 
   // Dados para gráfico de pizza (alocação)
-  const pieData = investmentData.map((item) => ({
+  const pieData = data.map((item) => ({
     name: item.ticker,
     value: item.total_investido,
     percentage: ((item.total_investido / totals.totalInvestido) * 100).toFixed(1),
   }))
 
   // Dados para gráfico de barras (dividendos + JCP)
-  const barData = investmentData.map((item) => ({
+  const barData = data.map((item) => ({
     ticker: item.ticker,
     dividendos: item.dividendos,
     jcp: item.juros_sobre_capital_proprio,
