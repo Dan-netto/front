@@ -22,8 +22,9 @@ import {
 import { TrendingUp, DollarSign, PieChartIcon, BarChart3, ArrowUpDown } from "lucide-react"
 
 export default function InvestmentDashboard() {
-  const [data, setInvestmentData] = useState<any[]>([])
+  const [data, setData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira")
