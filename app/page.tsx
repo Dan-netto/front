@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useEffect,useState, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -26,7 +26,7 @@ export default function InvestmentDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira") // depois troca pelo backend deployado
+    fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira")
       .then((res) => {
         if (!res.ok) throw new Error("Erro ao buscar dados")
         return res.json()
