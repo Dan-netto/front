@@ -14,7 +14,7 @@ export default function InvestmentDashboard() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch(""https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira"")
+    fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira")
       .then((res) => {
         if (!res.ok) throw new Error("Erro ao buscar dados")
         return res.json()
