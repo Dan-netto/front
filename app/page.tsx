@@ -73,7 +73,7 @@ export default function InvestmentDashboard() {
       tirMediaPonderada,
       retornoTotal: totalDividendos + totalJCP,
     }
-  }, [])
+  }, [data])
 
   // Dados filtrados e ordenados
   const filteredAndSortedData = useMemo(() => {
@@ -333,8 +333,8 @@ export default function InvestmentDashboard() {
                       <TableCell>{formatCurrency(investment.total_investido)}</TableCell>
                       <TableCell>{formatCurrency(investment.preco_medio)}</TableCell>
                       <TableCell>
-                        <span className={investment.tir >= 10 ? "text-primary" : "text-muted-foreground"}>
-                          {formatPercentage(investment.tir)}
+                        <span className={investment.TIR >= 10 ? "text-primary" : "text-muted-foreground"}>
+                          {formatPercentage(investment.TIR)}
                         </span>
                       </TableCell>
                       <TableCell className="text-primary">{formatCurrency(investment.dividendos)}</TableCell>
