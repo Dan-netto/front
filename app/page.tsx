@@ -22,33 +22,38 @@ import {
 import { TrendingUp, DollarSign, PieChartIcon, BarChart3, ArrowUpDown } from "lucide-react"
 
 export default function InvestmentDashboard() {
-  const [data, setData] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Add these state declarations
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
     fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira")
       .then((res) => {
-        if (!res.ok) throw new Error("Erro ao buscar dados")
-        return res.json()
+        if (!res.ok) throw new Error("Erro ao buscar dados");
+        return res.json();
       })
       .then((json) => {
-        setData(json)
-        setLoading(false)
+        setData(json);
+        setLoading(false);
       })
       .catch((err) => {
-        console.error(err)
-        setError("Falha ao carregar dados do backend")
-        setLoading(false)
-      })
-  }, [])
+        console.error(err);
+        setError("Falha ao carregar dados do backend");
+        setLoading(false);
+      });
+  }, []);
 
   if (loading) {
-    return <div className="p-6">Carregando...</div>
+    return <div className="p-6">Carregando...</div>;
   }
 
   if (error) {
-    return <div className="p-6 text-red-500">{error}</div>
+    return <div className="p-6 text-red-500">{error}</div>;
   }
 
   // Cálculos dos totais
