@@ -48,14 +48,6 @@ export default function InvestmentDashboard() {
       });
   }, []);
 
-  if (loading) {
-    return <div className="p-6">Carregando...</div>;
-  }
-
-  if (error) {
-    return <div className="p-6 text-red-500">{error}</div>;
-  }
-
   // Cálculos dos totais
   const totals = useMemo(() => {
     const totalInvestido = data.reduce((sum, item) => sum + item.total_investido, 0)
