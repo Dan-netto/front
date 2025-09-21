@@ -5,18 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TrendingUp, DollarSign } from "lucide-react"
 
 export default function DashboardResumo() {
-  const [data, setData] = useState<{ carteira: any[]; resumos: any } | null>(null)
+  const [data, setData] = useState<any[]>([])
+  const [resumos, setResumos] = useState<any>(null)
   const [periodo, setPeriodo] = useState<"mes_atual" | "um_ano" | "dois_anos" | "desde_inicio">("desde_inicio")
-  const proventosPeriodo = data?.resumos?.proventos?.[periodo] ?? 0
-
-
+  const proventosPeriodo = resumos?.proventos?.[periodo] ?? 0
 
   useEffect(() => {
-    fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira")
-      .then((res) => res.json())
-      .then((json) => setData(json))
-      .catch((err) => console.error(err))
-  }, [])
+  fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira")
+    .then((res) => res.json())
+    .then((json) => {
+      setData(json.carteira)   // aqui
+      setResumos(json.resumos) // novo state para filtros de período
+    })
+    .catch((err) => console.error(err))
+}, [])
 
   const totals = useMemo(() => {
     const totalInvestido = data.reduce((sum, item) => sum + item.total_investido, 0)
@@ -50,6 +52,39 @@ export default function DashboardResumo() {
      <button onClick={() => setPeriodo("desde_inicio")}>Desde Início</button>
     </div>
 
+    <Card>
+  <CardHeader className="flex flex-row items-center justify-between pb-2">
+    <CardTitle className="text-sm font-medium">Dividendos + JCP (filtro)</CardTitle>
+    <TrendingUp className="h-4 w-4 text-primary" />
+  </CardHeader>
+  <CardContent>
+    <div className="text-2xl font-bold text-primary">
+      {formatCurrency(proventosPeriodo)}
+    </div>
+  </CardContent>
+</Card>
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+  {data.map((item) => (
+    <Card key={item.Ticker}>
+      <CardHeader>
+        <CardTitle className="text-xl font-bold">{item.Ticker}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <p><strong>Qtd:</strong> {item.quantidade}</p>
+        <p><strong>Preço Médio:</strong> {formatCurrency(item.preco_medio)}</p>
+        <p><strong>Investido:</strong> {formatCurrency(item.total_investido)}</p>
+        <p><strong>Dividendos:</strong> {formatCurrency(item.dividendos)}</p>
+        <p><strong>JCP:</strong> {formatCurrency(item.juros_sobre_capital_proprio)}</p>
+        <p><strong>TIR:</strong> {formatPercentage(item.TIR)}</p>
+        <p className={item.Rentabilidade_preco_medio > 0 ? "text-green-600" : "text-red-600"}>
+          <strong>Rent. PM:</strong> {formatPercentage(item.Rentabilidade_preco_medio)}
+        </p>
+      </CardContent>
+    </Card>
+  ))}
+</div>
+
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Investido */}
         <Card>
@@ -70,7 +105,7 @@ export default function DashboardResumo() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">
-              {formatCurrency(proventosPeriodo)}
+              {formatCurrency(totals.totalDividendos)}
             </div>
           </CardContent>
         </Card>
