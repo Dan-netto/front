@@ -5,7 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TrendingUp, DollarSign } from "lucide-react"
 
 export default function DashboardResumo() {
-  const [data, setData] = useState<any[]>([])
+  const [data, setData] = useState<{ carteira: any[]; resumos: any } | null>(null)
+  const [periodo, setPeriodo] = useState<"mes_atual" | "um_ano" | "dois_anos" | "desde_inicio">("desde_inicio")
+  const proventosPeriodo = data?.resumos?.proventos?.[periodo] ?? 0
+
+
 
   useEffect(() => {
     fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira")
@@ -39,6 +43,13 @@ export default function DashboardResumo() {
         <p className="text-muted-foreground">Consolidação e análise da sua carteira de ações</p>
       </div>
 
+    <div className="flex gap-2 mb-4">
+     <button onClick={() => setPeriodo("mes_atual")}>Mês Atual</button>
+     <button onClick={() => setPeriodo("um_ano")}>1 Ano</button>
+     <button onClick={() => setPeriodo("dois_anos")}>2 Anos</button>
+     <button onClick={() => setPeriodo("desde_inicio")}>Desde Início</button>
+    </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Investido */}
         <Card>
@@ -59,7 +70,7 @@ export default function DashboardResumo() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">
-              {formatCurrency(totals.totalDividendos)}
+              {formatCurrency(proventosPeriodo)}
             </div>
           </CardContent>
         </Card>
