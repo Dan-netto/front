@@ -63,27 +63,6 @@ export default function DashboardResumo() {
     </div>
   </CardContent>
 </Card>
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-  {data.map((item) => (
-    <Card key={item.Ticker}>
-      <CardHeader>
-        <CardTitle className="text-xl font-bold">{item.Ticker}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <p><strong>Qtd:</strong> {item.quantidade}</p>
-        <p><strong>Preço Médio:</strong> {formatCurrency(item.preco_medio)}</p>
-        <p><strong>Investido:</strong> {formatCurrency(item.total_investido)}</p>
-        <p><strong>Dividendos:</strong> {formatCurrency(item.dividendos)}</p>
-        <p><strong>JCP:</strong> {formatCurrency(item.juros_sobre_capital_proprio)}</p>
-        <p><strong>TIR:</strong> {formatPercentage(item.TIR)}</p>
-        <p className={item.Rentabilidade_preco_medio > 0 ? "text-green-600" : "text-red-600"}>
-          <strong>Rent. PM:</strong> {formatPercentage(item.Rentabilidade_preco_medio)}
-        </p>
-      </CardContent>
-    </Card>
-  ))}
-</div>
-
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Investido */}
@@ -134,6 +113,26 @@ export default function DashboardResumo() {
           </CardContent>
         </Card>
       </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+  {data.map((item) => (
+    <Card key={item.Ticker}>
+      <CardHeader>
+        <CardTitle className="text-xl font-bold">{item.Ticker}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <p><strong>Qtd:</strong> {item.quantidade}</p>
+        <p><strong>Preço Médio:</strong> {formatCurrency(item.preco_medio)}</p>
+        <p><strong>Investido:</strong> {formatCurrency(item.total_investido)}</p>
+        <p><strong>Dividendos:</strong> {formatCurrency(item.dividendos)}</p>
+        <p><strong>JCP:</strong> {formatCurrency(item.juros_sobre_capital_proprio)}</p>
+        <p><strong>TIR:</strong> {formatPercentage(item.TIR)}</p>
+        <p className={item.Rentabilidade_preco_medio > 0 ? "text-green-600" : "text-red-600"}>
+          <strong>Rent. PM:</strong> {formatPercentage(item.Rentabilidade_preco_medio)}
+        </p>
+      </CardContent>
+    </Card>
+  ))}
+</div>
     </div>
   )
 }
