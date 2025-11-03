@@ -1,80 +1,68 @@
-// app/declaracao/page.tsx
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
-import { Button } from "@/components/ui/button";
-import { saveAs } from "file-saver";
+import { useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
-export default function DeclaracaoPage() {
-  const { data, isLoading } = useQuery({
-    queryKey: ["lucros"],
-    queryFn: async () => {
-      const res = await fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/lucro");
-      return res.json();
-    },
-  });
+export default function Declaracao() {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (isLoading) return <p>Carregando...</p>;
+  useEffect(() => {
+    fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/lucros")
+      .then((res) => res.json())
+      .then((res) => setData(res.lucros || []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
-  const { lucros } = data;
-
-  const exportCSV = () => {
-    const csvContent = [
-      ["Data", "Ticker", "Lucro", "Tipo Venda", "Preço Médio"],
-      ...lucros.map((l: any) => [
-        l["Data do Negócio"], l.Ticker, l.lucro, l["tipo venda"], l["Preço Médio Ajustado"]
-      ]),
-    ].map(e => e.join(",")).join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    saveAs(blob, "lucros.csv");
-  };
+  if (loading) return <p>Carregando lucros...</p>;
+  if (!data.length) return <p>Nenhum lucro encontrado.</p>;
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">🧾 Declaração de Lucros</h1>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold text-gray-800">💰 Lucros e Vendas</h2>
 
-      {/* Gráfico de lucros */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <h2 className="font-semibold mb-2">Lucros por Data</h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={lucros}>
-            <XAxis dataKey="Data do Negócio" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="lucro" fill="#10B981" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      <Card>
+        <CardContent>
+          <h3 className="text-lg font-semibold mb-3">Lucros por Data</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={data}>
+              <XAxis dataKey="Data do Negócio" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="lucro" fill="#F59E0B" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
 
-      {/* Tabela */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full border">
-          <thead className="bg-gray-100">
-            <tr>
-              {["Data", "Ticker", "Lucro", "Tipo Venda", "PM Ajustado"].map(h => (
-                <th key={h} className="p-2 text-left">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {lucros.map((l: any, i: number) => (
-              <tr key={i} className="border-t">
-                <td className="p-2">{l["Data do Negócio"]}</td>
-                <td className="p-2">{l.Ticker}</td>
-                <td className="p-2">R$ {l.lucro.toFixed(2)}</td>
-                <td className="p-2">{l["tipo venda"]}</td>
-                <td className="p-2">R$ {l["Preço Médio Ajustado"].toFixed(2)}</td>
+      <Card>
+        <CardContent>
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr className="border-b font-semibold text-gray-600">
+                <th className="text-left py-2">Data</th>
+                <th>Ticker</th>
+                <th>Lucro</th>
+                <th>Tipo</th>
+                <th>Preço Médio</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <Button onClick={exportCSV} className="bg-blue-600 hover:bg-blue-700 text-white">
-        Exportar CSV
-      </Button>
+            </thead>
+            <tbody>
+              {data.map((row: any, i: number) => (
+                <tr key={i} className="border-b hover:bg-gray-50">
+                  <td>{row["Data do Negócio"]}</td>
+                  <td>{row.Ticker}</td>
+                  <td>R$ {row.lucro?.toFixed(2)}</td>
+                  <td>{row["tipo venda"]}</td>
+                  <td>R$ {row["Preço Médio Ajustado"]?.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
     </div>
   );
 }
