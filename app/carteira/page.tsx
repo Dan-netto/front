@@ -9,14 +9,23 @@ export default function DashboardResumo() {
   const [resumos, setResumos] = useState<any>(null)
 
   useEffect(() => {
-    fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira")
-      .then((res) => res.json())
-      .then((json) => {
+  fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira")
+    .then((res) => res.json())
+    .then((json) => {
+      if (json?.carteira && Array.isArray(json.carteira)) {
         setData(json.carteira)
-        setResumos(json.resumos)
-      })
-      .catch((err) => console.error(err))
-  }, [])
+      } else {
+        console.warn("⚠️ Resposta inesperada da API:", json)
+        setData([]) // garante que data é sempre um array
+      }
+      setResumos(json?.resumos ?? {})
+    })
+    .catch((err) => {
+      console.error("Erro ao buscar dados:", err)
+      setData([])
+      setResumos({})
+    })
+}, [])
 
   const totals = useMemo(() => {
     const totalInvestido = data.reduce((sum, item) => sum + item.total_investido, 0)
