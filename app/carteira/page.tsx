@@ -2,14 +2,11 @@
 
 import { useEffect, useState, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { TrendingUp, DollarSign, PieChart } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { TrendingUp, DollarSign, PieChart, ArrowDownCircle, ArrowUpCircle } from "lucide-react"
 
 export default function DashboardResumo() {
   const [data, setData] = useState<any[]>([])
   const [resumos, setResumos] = useState<any>(null)
-  const [periodo, setPeriodo] = useState<"mes_atual" | "um_ano" | "dois_anos" | "desde_inicio">("desde_inicio")
-  const proventosPeriodo = resumos?.proventos?.[periodo] ?? 0
 
   useEffect(() => {
     fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira")
@@ -45,79 +42,60 @@ export default function DashboardResumo() {
         <p className="text-gray-500 mt-2">Acompanhe o desempenho e rentabilidade da sua carteira</p>
       </div>
 
-      {/* Filtros de Período */}
-      <div className="flex flex-wrap justify-center gap-3">
-        {[
-          { key: "mes_atual", label: "Mês Atual" },
-          { key: "um_ano", label: "1 Ano" },
-          { key: "dois_anos", label: "2 Anos" },
-          { key: "desde_inicio", label: "Desde o Início" },
-        ].map(({ key, label }) => (
-          <Button
-            key={key}
-            variant={periodo === key ? "default" : "outline"}
-            onClick={() => setPeriodo(key as any)}
-            className="min-w-[120px]"
-          >
-            {label}
-          </Button>
-        ))}
-      </div>
-
       {/* Resumo Superior */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="hover:shadow-lg transition-all">
           <CardHeader className="flex justify-between">
-            <CardTitle className="text-sm font-medium">Total Investido</CardTitle>
-            <DollarSign className="h-5 w-5 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Investimento Total</CardTitle>
+            <DollarSign className="h-5 w-5 text-indigo-500" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{formatCurrency(totals.totalInvestido)}</p>
+            <p className="text-2xl font-bold text-indigo-600">
+              {formatCurrency(resumos?.investimento_total ?? totals.totalInvestido)}
+            </p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-all">
           <CardHeader className="flex justify-between">
-            <CardTitle className="text-sm font-medium">Dividendos</CardTitle>
+            <CardTitle className="text-sm font-medium">Rentabilidade Acumulada (%)</CardTitle>
             <TrendingUp className="h-5 w-5 text-emerald-500" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-emerald-600">{formatCurrency(totals.totalDividendos)}</p>
+            <p className="text-2xl font-bold text-emerald-600">
+              {formatPercentage(resumos?.rentabilidade_total ?? 0)}
+            </p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-all">
           <CardHeader className="flex justify-between">
-            <CardTitle className="text-sm font-medium">JCP</CardTitle>
-            <TrendingUp className="h-5 w-5 text-indigo-500" />
+            <CardTitle className="text-sm font-medium">Total Resgatado</CardTitle>
+            <ArrowDownCircle className="h-5 w-5 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-indigo-600">{formatCurrency(totals.totalJCP)}</p>
+            <p className="text-2xl font-bold text-orange-600">
+              {formatCurrency(resumos?.total_resgatado ?? 0)}
+            </p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-all">
           <CardHeader className="flex justify-between">
-            <CardTitle className="text-sm font-medium">TIR Média Ponderada</CardTitle>
-            <PieChart className="h-5 w-5 text-orange-500" />
+            <CardTitle className="text-sm font-medium">Lucro / Prejuízo Total</CardTitle>
+            <ArrowUpCircle className="h-5 w-5 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-orange-600">{formatPercentage(totals.tirMediaPonderada)}</p>
+            <p
+              className={`text-2xl font-bold ${
+                (resumos?.lucro_prejuizo_total ?? 0) >= 0 ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {formatCurrency(resumos?.lucro_prejuizo_total ?? 0)}
+            </p>
           </CardContent>
         </Card>
       </div>
-
-      {/* Proventos Filtrados */}
-      <Card className="p-4 bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold text-emerald-700">
-            Dividendos + JCP ({periodo.replace("_", " ").toUpperCase()})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-3xl font-bold text-emerald-700">{formatCurrency(proventosPeriodo)}</p>
-        </CardContent>
-      </Card>
 
       {/* Detalhamento da Carteira */}
       <div>
