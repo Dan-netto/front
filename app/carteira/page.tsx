@@ -1,135 +1,184 @@
-"use client"
+"use client";
 
-import { useEffect, useState, useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { TrendingUp, DollarSign, PieChart, ArrowDownCircle, ArrowUpCircle } from "lucide-react"
+import React, { useEffect, useState, useMemo } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 
-export default function DashboardResumo() {
-  const [data, setData] = useState<any[]>([])
-  const [resumos, setResumos] = useState<any>(null)
+export default function CarteiraPage() {
+  const [data, setData] = useState<any[]>([]);
+  const [resumos, setResumos] = useState<any>({});
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-  fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira")
-    .then((res) => res.json())
-    .then((json) => {
-      if (json?.carteira && Array.isArray(json.carteira)) {
-        setData(json.carteira)
-      } else {
-        console.warn("⚠️ Resposta inesperada da API:", json)
-        setData([]) // garante que data é sempre um array
-      }
-      setResumos(json?.resumos ?? {})
-    })
-    .catch((err) => {
-      console.error("Erro ao buscar dados:", err)
-      setData([])
-      setResumos({})
-    })
-}, [])
+    fetch("https://appcalculoemissao-2c6b30e79caa.herokuapp.com/carteira")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json?.carteira && Array.isArray(json.carteira)) {
+          setData(json.carteira);
+        } else {
+          console.warn("⚠️ Resposta inesperada da API:", json);
+          setData([]);
+        }
+        setResumos(json?.resumos ?? {});
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Erro ao buscar dados:", err);
+        setData([]);
+        setResumos({});
+        setIsLoading(false);
+      });
+  }, []);
 
   const totals = useMemo(() => {
-    const totalInvestido = data.reduce((sum, item) => sum + item.total_investido, 0)
-    const totalDividendos = data.reduce((sum, item) => sum + item.dividendos, 0)
-    const totalJCP = data.reduce((sum, item) => sum + item.juros_sobre_capital_proprio, 0)
-    const tirMediaPonderada =
-      totalInvestido > 0
-        ? data.reduce((sum, item) => sum + item.TIR * item.total_investido, 0) / totalInvestido
-        : 0
-    return { totalInvestido, totalDividendos, totalJCP, tirMediaPonderada }
-  }, [data])
+    if (!Array.isArray(data)) return {};
 
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value)
+    const totalInvestidoAtivo = data.reduce((sum, item) => sum + (item.total_investido || 0), 0);
+    const totalDividendos = data.reduce((sum, item) => sum + (item.dividendos || 0), 0);
+    const totalJCP = data.reduce((sum, item) => sum + (item.juros_sobre_capital_proprio || 0), 0);
+    const tirGeral =
+      totalInvestidoAtivo > 0
+        ? data.reduce((sum, item) => sum + (item.TIR * item.total_investido || 0), 0) /
+          totalInvestidoAtivo
+        : 0;
 
-  const formatPercentage = (value: number) => `${value.toFixed(2)}%`
+    return {
+      totalInvestidoAtivo,
+      totalDividendos,
+      totalJCP,
+      tirGeral,
+    };
+  }, [data]);
+
+  if (isLoading) return <p className="text-center mt-10">Carregando...</p>;
 
   return (
-    <div className="max-w-7xl mx-auto p-8 space-y-10">
-      {/* Título */}
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900">📊 Painel de Investimentos</h1>
-        <p className="text-gray-500 mt-2">Acompanhe o desempenho e rentabilidade da sua carteira</p>
+    <div className="space-y-8">
+      {/* --- Indicadores principais --- */}
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <Card className="bg-indigo-50 shadow">
+          <CardContent className="p-4 text-center">
+            <p className="text-sm text-gray-600">💰 Patrimônio Total</p>
+            <p className="text-xl font-bold text-indigo-700">
+              R$ {resumos?.Patrimonio_total?.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-green-50 shadow">
+          <CardContent className="p-4 text-center">
+            <p className="text-sm text-gray-600">🏦 Total Investido (Carteira Atual)</p>
+            <p className="text-xl font-bold text-green-700">
+              R$ {totals.totalInvestidoAtivo?.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-yellow-50 shadow">
+          <CardContent className="p-4 text-center">
+            <p className="text-sm text-gray-600">💸 Investimento Total (Histórico)</p>
+            <p className="text-xl font-bold text-yellow-700">
+              R$ {resumos?.investimento_total?.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-purple-50 shadow">
+          <CardContent className="p-4 text-center">
+            <p className="text-sm text-gray-600">📈 Rentabilidade Acumulada</p>
+            <p className="text-xl font-bold text-purple-700">
+              {resumos?.Rentabilidade_total?.toFixed(2)}%
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-pink-50 shadow">
+          <CardContent className="p-4 text-center">
+            <p className="text-sm text-gray-600">💰 Total Resgatado</p>
+            <p className="text-xl font-bold text-pink-700">
+              R$ {resumos?.total_resgatado?.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-red-50 shadow">
+          <CardContent className="p-4 text-center">
+            <p className="text-sm text-gray-600">📊 Lucro / Prejuízo Total</p>
+            <p className="text-xl font-bold text-red-700">
+              R$ {resumos?.lucro_prejuizo_total?.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-teal-50 shadow">
+          <CardContent className="p-4 text-center">
+            <p className="text-sm text-gray-600">🧾 Proventos Totais</p>
+            <p className="text-xl font-bold text-teal-700">
+              R$ {resumos?.proventos?.desde_inicio?.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-blue-50 shadow">
+          <CardContent className="p-4 text-center">
+            <p className="text-sm text-gray-600">⚙️ TIR Geral</p>
+            <p className="text-xl font-bold text-blue-700">{totals.tirGeral.toFixed(2)}%</p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Resumo Superior */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="hover:shadow-lg transition-all">
-          <CardHeader className="flex justify-between">
-            <CardTitle className="text-sm font-medium">Investimento Total</CardTitle>
-            <DollarSign className="h-5 w-5 text-indigo-500" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-indigo-600">
-              {formatCurrency(resumos?.investimento_total ?? totals.totalInvestido)}
-            </p>
-          </CardContent>
-        </Card>
+      {/* --- Tabela de ativos --- */}
+      <Card className="shadow-md">
+        <CardContent className="overflow-x-auto p-4">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-gray-100 text-gray-700">
+                <th className="p-2 text-left">Ticker</th>
+                <th className="p-2 text-right">Preço Médio</th>
+                <th className="p-2 text-right">Preço Última Atualização</th>
+                <th className="p-2 text-right">Quantidade</th>
+                <th className="p-2 text-right">Total Investido</th>
+                <th className="p-2 text-right">TIR</th>
+                <th className="p-2 text-right">Rentabilidade</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item) => (
+                <tr key={item.Ticker} className="border-b hover:bg-gray-50">
+                  <td className="p-2 font-semibold">{item.Ticker}</td>
+                  <td className="p-2 text-right">
+                    R$ {item.preco_medio?.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="p-2 text-right">
+                    R$ {item.ultimo_atualizacao_preco?.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="p-2 text-right">{item.quantidade}</td>
+                  <td className="p-2 text-right">
+                    R$ {item.total_investido?.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="p-2 text-right">{item.TIR?.toFixed(2)}%</td>
+                  <td className="p-2 text-right">{item.Rentabilidade_preco_medio?.toFixed(2)}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
 
-        <Card className="hover:shadow-lg transition-all">
-          <CardHeader className="flex justify-between">
-            <CardTitle className="text-sm font-medium">Rentabilidade Acumulada (%)</CardTitle>
-            <TrendingUp className="h-5 w-5 text-emerald-500" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-emerald-600">
-              {formatPercentage(resumos?.rentabilidade_total ?? 0)}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-all">
-          <CardHeader className="flex justify-between">
-            <CardTitle className="text-sm font-medium">Total Resgatado</CardTitle>
-            <ArrowDownCircle className="h-5 w-5 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-orange-600">
-              {formatCurrency(resumos?.total_resgatado ?? 0)}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-all">
-          <CardHeader className="flex justify-between">
-            <CardTitle className="text-sm font-medium">Lucro / Prejuízo Total</CardTitle>
-            <ArrowUpCircle className="h-5 w-5 text-purple-500" />
-          </CardHeader>
-          <CardContent>
-            <p
-              className={`text-2xl font-bold ${
-                (resumos?.lucro_prejuizo_total ?? 0) >= 0 ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {formatCurrency(resumos?.lucro_prejuizo_total ?? 0)}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Detalhamento da Carteira */}
-      <div>
-        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Carteira Detalhada</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {data.map((item) => (
-            <Card key={item.Ticker} className="hover:shadow-md transition-all">
-              <CardHeader>
-                <CardTitle className="text-lg font-bold">{item.Ticker}</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm space-y-1">
-                <p><strong>Qtd:</strong> {item.quantidade}</p>
-                <p><strong>Preço Médio:</strong> {formatCurrency(item.preco_medio)}</p>
-                <p><strong>Investido:</strong> {formatCurrency(item.total_investido)}</p>
-                <p><strong>Dividendos:</strong> {formatCurrency(item.dividendos)}</p>
-                <p><strong>JCP:</strong> {formatCurrency(item.juros_sobre_capital_proprio)}</p>
-                <p><strong>TIR:</strong> {formatPercentage(item.TIR)}</p>
-                <p className={item.Rentabilidade_preco_medio > 0 ? "text-green-600" : "text-red-600"}>
-                  <strong>Rent. PM:</strong> {formatPercentage(item.Rentabilidade_preco_medio)}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+      {/* --- Gráfico opcional de distribuição --- */}
+      <Card className="shadow-md">
+        <CardContent className="p-4">
+          <h2 className="text-lg font-semibold mb-4 text-gray-700">Distribuição por Ticker</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={data}>
+              <XAxis dataKey="Ticker" />
+              <YAxis />
+              <Tooltip formatter={(value) => `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`} />
+              <Bar dataKey="total_investido" fill="#4f46e5" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
     </div>
-  )
+  );
 }
